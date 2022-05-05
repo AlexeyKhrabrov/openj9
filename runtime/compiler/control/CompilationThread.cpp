@@ -144,6 +144,10 @@ static void printCompFailureInfo(TR::Compilation * comp, const char * reason);
 #include "runtime/IProfiler.hpp"
 #endif
 
+#if defined(J9VM_OPT_JITSERVER) && defined(LINUX)
+#include <sys/resource.h>// For getrusage()
+#endif /* defined(J9VM_OPT_JITSERVER) && defined(LINUX) */
+
 IDATA J9THREAD_PROC compilationThreadProc(void *jitconfig);
 IDATA J9THREAD_PROC protectedCompilationThreadProc(J9PortLibrary *portLib, TR::CompilationInfoPerThread*compInfoPT/*void *vmthread*/);
 
@@ -3078,6 +3082,35 @@ void printAllCounts(J9JavaVM *javaVM)
 
 #include "infra/Statistics.hpp"  // MCT
 
+#if defined(J9VM_OPT_JITSERVER) && defined(LINUX)
+void TR::CompilationInfo::printResourceUsageStats()
+   {
+   struct rusage usage = {0};
+   if (getrusage(RUSAGE_SELF, &usage) < 0)
+      {
+      perror("getrusage");
+      return;
+      }
+
+   double utime = usage.ru_utime.tv_sec + usage.ru_utime.tv_usec / 1000000.0;
+   double stime = usage.ru_stime.tv_sec + usage.ru_stime.tv_usec / 1000000.0;
+   //NOTE: format matches the (partial) output of '/usr/bin/time -v'
+   fprintf(stderr,
+      "Resource usage statistics:\n"
+      "\tTotal CPU time (seconds): %.2f\n"
+      "\tUser time (seconds): %.2f\n"
+      "\tSystem time (seconds): %.2f\n"
+      "\tMaximum resident set size (kbytes): %lu\n"
+      "\tMajor (requiring I/O) page faults: %lu\n"
+      "\tMinor (reclaiming a frame) page faults: %lu\n"
+      "\tVoluntary context switches: %lu\n"
+      "\tInvoluntary context switches: %lu\n",
+      utime + stime, utime, stime, usage.ru_maxrss,
+      usage.ru_majflt, usage.ru_minflt, usage.ru_nvcsw, usage.ru_nivcsw
+   );
+   }
+#endif /* defined(J9VM_OPT_JITSERVER) && defined(LINUX) */
+
 void TR::CompilationInfo::stopCompilationThreads()
    {
    J9JavaVM   * const vm       = _jitConfig->javaVM;
@@ -3385,6 +3418,12 @@ void TR::CompilationInfo::stopCompilationThreads()
       if (auto deserializer = getJITServerAOTDeserializer())
          deserializer->printStats(stderr);
       }
+
+#if defined(LINUX)
+   static char *isPrintResourceUsageStats = feGetEnv("TR_PrintResourceUsageStats");
+   if (isPrintResourceUsageStats)
+      printResourceUsageStats();
+#endif /* defined(LINUX) */
 #endif /* defined(J9VM_OPT_JITSERVER) */
 
 #ifdef STATS

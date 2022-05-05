@@ -330,6 +330,10 @@ runJitdump(char *label, J9RASdumpContext *context, J9RASdumpAgent *agent)
             }
 
 #if defined(LINUX)
+         static char *isPrintResourceUsageStats = feGetEnv("TR_PrintResourceUsageStats");
+         if (isPrintResourceUsageStats)
+            compInfo->printResourceUsageStats();
+
          static char *isPrintJITServerMallocStats = feGetEnv("TR_PrintJITServerMallocStats");
          if (isPrintJITServerMallocStats)
             malloc_stats();

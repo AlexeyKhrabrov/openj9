@@ -733,6 +733,10 @@ public:
    void freeAllCompilationThreads();
    void freeAllResources();
 
+#if defined(J9VM_OPT_JITSERVER) && defined(LINUX)
+   static void printResourceUsageStats();
+#endif /* defined(J9VM_OPT_JITSERVER) && defined(LINUX) */
+
    uintptr_t startCompilationThread(int32_t priority, int32_t id, bool isDiagnosticThread);
    bool  asynchronousCompilation();
    void stopCompilationThreads();
