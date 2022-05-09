@@ -1710,7 +1710,9 @@ TR::CompilationInfoPerThreadRemote::freeAllResources()
    {
    if (_recompilationMethodInfo)
       {
-      TR_Memory::jitPersistentFree(_recompilationMethodInfo);
+      //NOTE: _recompilationMethodInfo is allocated with the per-client persistent allocator
+      if (auto clientData = getClientData())
+         clientData->persistentMemory()->freePersistentMemory(_recompilationMethodInfo);
       _recompilationMethodInfo = NULL;
       }
 

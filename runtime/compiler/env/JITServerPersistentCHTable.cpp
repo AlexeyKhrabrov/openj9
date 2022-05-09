@@ -149,7 +149,7 @@ JITServerPersistentCHTable::commitModifications(const std::string &rawData)
       TR_PersistentClassInfo* clazz = findClassInfo(classId);
       if (!clazz)
          {
-         clazz = new (PERSISTENT_NEW) TR_PersistentClassInfo(NULL);
+         clazz = new (_trPersistentMemory) TR_PersistentClassInfo(NULL);
          _classMap.insert({classId, clazz});
          }
       infoMap.insert({classId, {info, clazz}});
@@ -370,7 +370,7 @@ FlatPersistentClassInfo::deserializeHierarchy(const std::string& data, TR_Persis
       {
       TR_ASSERT_FATAL(bytesRead < data.length(), "Corrupt CHTable!! bytesRead=%lu data.length=%lu numClasses=%u\n", bytesRead, data.length(), numClasses);
       FlatPersistentClassInfo* info = (FlatPersistentClassInfo*)&data[bytesRead];
-      TR_PersistentClassInfo *clazz = new (PERSISTENT_NEW) TR_PersistentClassInfo(NULL);
+      TR_PersistentClassInfo *clazz = new (persistentMemory) TR_PersistentClassInfo(NULL);
       bytesRead += deserializeClassSimple(clazz, info);
       numClasses++;
       out.push_back(clazz);
@@ -461,7 +461,7 @@ JITClientPersistentCHTable::classGotLoaded(
       TR_OpaqueClassBlock *classId)
    {
    TR_ASSERT(!findClassInfo(classId), "Should not add duplicates to hash table\n");
-   TR_PersistentClassInfo *clazz = new (PERSISTENT_NEW) TR_JITClientPersistentClassInfo(classId, this);
+   TR_PersistentClassInfo *clazz = new (_trPersistentMemory) TR_JITClientPersistentClassInfo(classId, this);
    if (clazz)
       {
       auto classes = getClasses();
