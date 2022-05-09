@@ -252,11 +252,11 @@ PersistentAllocator::allocateInternal(size_t requestedSize)
    else // Variable size block allocation
       {
       j9thread_monitor_enter(_largeBlockMonitor);
-      Block *block =
 #if defined(J9VM_OPT_JITSERVER)
-         _isJITServer ? allocateFromIndexedListLocked(allocSize) :
-#endif
-                        allocateFromVariableSizeListLocked(allocSize);
+      Block *block = allocateFromIndexedListLocked(allocSize);
+#else
+      Block *block = allocateFromVariableSizeListLocked(allocSize);
+#endif /* defined(J9VM_OPT_JITSERVER) */
       if (block)
          {
          // If the block I found is bigger than what I need,
@@ -278,11 +278,10 @@ PersistentAllocator::allocateInternal(size_t requestedSize)
             else
                {
 #if defined(J9VM_OPT_JITSERVER)
-               if (_isJITServer)
-                  freeBlockToIndexedList(new (pointer_cast<uint8_t *>(block) + allocSize) Block(excess));
-               else
-#endif
-                  freeVariableSizeBlock(new (pointer_cast<uint8_t *>(block) + allocSize) Block(excess));
+               freeBlockToIndexedList(new (pointer_cast<uint8_t *>(block) + allocSize) Block(excess));
+#else /* defined(J9VM_OPT_JITSERVER) */
+               freeVariableSizeBlock(new (pointer_cast<uint8_t *>(block) + allocSize) Block(excess));
+#endif /* defined(J9VM_OPT_JITSERVER) */
                j9thread_monitor_exit(_largeBlockMonitor);
                }
             }
@@ -654,11 +653,10 @@ PersistentAllocator::freeBlock(Block *block)
       {
       j9thread_monitor_enter(_largeBlockMonitor);
 #if defined(J9VM_OPT_JITSERVER)
-      if (_isJITServer)
-         freeBlockToIndexedList(block);
-      else
-#endif
-         freeVariableSizeBlock(block);
+      freeBlockToIndexedList(block);
+#else /* defined(J9VM_OPT_JITSERVER) */
+      freeVariableSizeBlock(block);
+#endif /* defined(J9VM_OPT_JITSERVER) */
       j9thread_monitor_exit(_largeBlockMonitor);
       }
    }
