@@ -160,7 +160,7 @@ JITServerPersistentCHTable::commitModifications(const std::string &rawData)
       }
 
    // populate subclasses
-   for (auto it : infoMap)
+   for (auto &it : infoMap)
       {
       auto flat = it.second.first;
       auto persist = it.second.second;
@@ -378,7 +378,7 @@ FlatPersistentClassInfo::deserializeHierarchy(const std::string& data, TR_Persis
       }
 
    // populate subclasses
-   for (auto it : infoMap)
+   for (auto &it : infoMap)
       {
       auto flat = it.second.first;
       auto persist = it.second.second;

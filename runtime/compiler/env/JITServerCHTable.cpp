@@ -252,9 +252,9 @@ bool JITClientCHTableCommit(
          JITClientCommitOSRVirtualGuards(comp, vguards);
       }
 
-   TR::list<TR_VirtualGuardSite*> *sites = comp->getSideEffectGuardPatchSites();
+   TR::list<TR_VirtualGuardSite *> *sites = comp->getSideEffectGuardPatchSites();
    sites->clear();
-   for (auto site : sideEffectPatchSites)
+   for (auto &site : sideEffectPatchSites)
       {
       TR_VirtualGuardSite *newSite = new (comp->trHeapMemory()) TR_VirtualGuardSite;
       newSite->setDestination(site.getDestination() - serverStartPC + startPC);
