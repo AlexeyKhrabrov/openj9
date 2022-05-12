@@ -34,6 +34,8 @@
 #if defined(J9VM_OPT_JITSERVER)
 #include "control/JITServerCompilationThread.hpp"
 #include "control/JITServerHelpers.hpp"
+#include "net/ClientStream.hpp"
+#include "net/ServerStream.hpp"
 #include "runtime/JITServerAOTCache.hpp"
 #include "runtime/JITServerAOTDeserializer.hpp"
 #include "runtime/JITServerIProfiler.hpp"
@@ -317,6 +319,21 @@ runJitdump(char *label, J9RASdumpContext *context, J9RASdumpAgent *agent)
                TR_J9VMBase *vmj9 = (TR_J9VMBase *)TR_J9VMBase::get(context->javaVM->jitConfig, NULL);
                JITServerIProfiler *iProfiler = (JITServerIProfiler *)vmj9->getIProfiler();
                iProfiler->printStats();
+               }
+            }
+
+         static char *isPrintJITServerConnStats = feGetEnv("TR_PrintJITServerConnStats");
+         if (isPrintJITServerConnStats)
+            {
+            if (compInfo->getPersistentInfo()->getRemoteCompilationMode() == JITServer::SERVER)
+               {
+               fprintf(stderr, "Number of connections opened = %u\n", JITServer::ServerStream::getNumConnectionsOpened());
+               fprintf(stderr, "Number of connections closed = %u\n", JITServer::ServerStream::getNumConnectionsClosed());
+               }
+            else if (compInfo->getPersistentInfo()->getRemoteCompilationMode() == JITServer::CLIENT)
+               {
+               fprintf(stderr, "Number of connections opened = %u\n", JITServer::ClientStream::getNumConnectionsOpened());
+               fprintf(stderr, "Number of connections closed = %u\n", JITServer::ClientStream::getNumConnectionsClosed());
                }
             }
 
