@@ -464,9 +464,6 @@ public:
 
    void incNumCacheBypasses() { ++_numCacheBypasses; }
    void incNumCacheMisses() { ++_numCacheMisses; }
-   size_t getNumDeserializedMethods() const { return _numDeserializedMethods; }
-   void incNumDeserializedMethods() { ++_numDeserializedMethods; }
-   void incNumDeserializationFailures() { ++_numDeserializationFailures; }
 
    void printStats(FILE *f) const;
 
@@ -644,8 +641,6 @@ private:
    size_t _numCacheBypasses;
    size_t _numCacheHits;
    size_t _numCacheMisses;
-   size_t _numDeserializedMethods;
-   size_t _numDeserializationFailures;
    size_t _numGeneratedClasses;
    };
 
@@ -658,6 +653,7 @@ public:
 
    JITServerAOTCacheMap();
    ~JITServerAOTCacheMap();
+
    /**
       @brief Enqueue the given AOT cache name to be saved saving to file, later-on.
    */
@@ -692,7 +688,6 @@ public:
       @return Pointer to the named AOT cache, or NULL if the cache could not be created right away (or at all)
    */
    JITServerAOTCache *get(const std::string &name, uint64_t clientUID, bool &pending);
-   size_t getNumDeserializedMethods() const;
 
    static void setCacheMaxBytes(size_t bytes) { _cacheMaxBytes = bytes; }
    static bool cacheHasSpace();

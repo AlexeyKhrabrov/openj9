@@ -838,8 +838,6 @@ JITServerHelpers::printJITServerMsgStats(J9JITConfig *jitConfig, TR::Compilation
    else if (compInfo->getPersistentInfo()->getRemoteCompilationMode() == JITServer::SERVER)
       {
       numCompilations = JITServer::CommunicationStream::_msgTypeCount[JITServer::MessageType::compilationRequest];
-      if (auto aotCacheMap = compInfo->getJITServerAOTCacheMap())
-         numDeserializedMethods = aotCacheMap->getNumDeserializedMethods();
       }
 
    if (numCompilations)

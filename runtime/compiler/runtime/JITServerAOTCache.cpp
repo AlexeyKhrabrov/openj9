@@ -728,8 +728,7 @@ JITServerAOTCache::JITServerAOTCache(const std::string &name) :
    _minNumAOTMethodsToSave(TR::Options::_aotCachePersistenceMinDeltaMethods),
    _saveOperationInProgress(false), // protected by the _cachedMethodMonitor
    _excludedFromSavingToFile(false),
-   _numCacheBypasses(0), _numCacheHits(0), _numCacheMisses(0),
-   _numDeserializedMethods(0), _numDeserializationFailures(0), _numGeneratedClasses(0)
+   _numCacheBypasses(0), _numCacheHits(0), _numCacheMisses(0), _numGeneratedClasses(0)
    {
    bool allMonitors = _classLoaderMonitor && _classMonitor && _methodMonitor &&
                       _classChainMonitor && _wellKnownClassesMonitor &&
@@ -1182,9 +1181,7 @@ JITServerAOTCache::printStats(FILE *f) const
       "\tAOT header records: %zu\n"
       "\tcache bypasses: %zu\n"
       "\tcache hits: %zu\n"
-      "\tcache misses: %zu\n"
-      "\tdeserialized methods: %zu\n"
-      "\tdeserialization failures: %zu\n",
+      "\tcache misses: %zu\n",
       _name.c_str(),
       _cachedMethodMap.size(),
       _classLoaderMap.size(),
@@ -1195,9 +1192,7 @@ JITServerAOTCache::printStats(FILE *f) const
       _aotHeaderMap.size(),
       _numCacheBypasses,
       _numCacheHits,
-      _numCacheMisses,
-      _numDeserializedMethods,
-      _numDeserializationFailures
+      _numCacheMisses
    );
    }
 
@@ -2025,16 +2020,6 @@ JITServerAOTCacheMap::get(const std::string &name, uint64_t clientUID, bool &pen
    return cache;
    }
 
-
-size_t
-JITServerAOTCacheMap::getNumDeserializedMethods() const
-   {
-   size_t result = 0;
-   OMR::CriticalSection cs(_monitor);
-   for (auto &it : _map)
-      result += it.second->getNumDeserializedMethods();
-   return result;
-   }
 
 void
 JITServerAOTCacheMap::printStats(FILE *f) const
