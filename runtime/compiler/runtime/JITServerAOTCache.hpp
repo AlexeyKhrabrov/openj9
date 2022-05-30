@@ -291,9 +291,6 @@ public:
 
    void incNumCacheBypasses() { ++_numCacheBypasses; }
    void incNumCacheMisses() { ++_numCacheMisses; }
-   size_t getNumDeserializedMethods() const { return _numDeserializedMethods; }
-   void incNumDeserializedMethods() { ++_numDeserializedMethods; }
-   void incNumDeserializationFailures() { ++_numDeserializationFailures; }
 
    void printStats(FILE *f) const;
 
@@ -388,8 +385,6 @@ private:
    size_t _numCacheBypasses;
    size_t _numCacheHits;
    size_t _numCacheMisses;
-   size_t _numDeserializedMethods;
-   size_t _numDeserializationFailures;
    };
 
 
@@ -403,8 +398,6 @@ public:
    ~JITServerAOTCacheMap();
 
    JITServerAOTCache *get(const std::string &name, uint64_t clientUID);
-
-   size_t getNumDeserializedMethods() const;
 
    void printStats(FILE *f) const;
 
