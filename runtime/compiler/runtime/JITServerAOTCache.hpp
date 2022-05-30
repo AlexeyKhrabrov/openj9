@@ -354,6 +354,9 @@ public:
    CachedAOTMethod(const CachedAOTMethod &) = delete;
    void operator=(const CachedAOTMethod &) = delete;
 
+   size_t getNumLookups() const { return _numLookups; }
+   void incNumLookups() { ++_numLookups; }
+
    const AOTCacheClassChainRecord *definingClassChainRecord() const { return _definingClassChainRecord; }
    const AOTCacheClassRecord *definingClassRecord() const { return _definingClassChainRecord->records()[0]; }
    const SerializedAOTMethod &data() const { return _data; }
@@ -394,6 +397,8 @@ private:
    bool setSubrecordPointers(const JITServerAOTCacheReadContext &context);
 
    CachedAOTMethod *_nextRecord;
+   size_t _numLookups;
+
    const AOTCacheClassChainRecord *const _definingClassChainRecord;
    SerializedAOTMethod _data;
    // Array of record pointers is stored inline after serialized AOT method data
@@ -642,6 +647,7 @@ private:
    size_t _numCacheHits;
    size_t _numCacheMisses;
    size_t _numGeneratedClasses;
+   size_t _numUnusedMethods;
    };
 
 

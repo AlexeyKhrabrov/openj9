@@ -420,10 +420,9 @@ CachedAOTMethod::CachedAOTMethod(const AOTCacheClassChainRecord *definingClassCh
                                  TR_Hotness optLevel, const AOTCacheAOTHeaderRecord *aotHeaderRecord,
                                  const Vector<std::pair<const AOTCacheRecord *, uintptr_t>> &records,
                                  const void *code, size_t codeSize, const void *data, size_t dataSize) :
-   _nextRecord(NULL),
+   _nextRecord(NULL), _numLookups(0), _definingClassChainRecord(definingClassChainRecord),
    _data(definingClassChainRecord->data().id(), index, optLevel,
-         aotHeaderRecord->data().id(), records.size(), code, codeSize, data, dataSize),
-   _definingClassChainRecord(definingClassChainRecord)
+         aotHeaderRecord->data().id(), records.size(), code, codeSize, data, dataSize)
    {
    for (size_t i = 0; i < records.size(); ++i)
       {
@@ -728,7 +727,7 @@ JITServerAOTCache::JITServerAOTCache(const std::string &name) :
    _minNumAOTMethodsToSave(TR::Options::_aotCachePersistenceMinDeltaMethods),
    _saveOperationInProgress(false), // protected by the _cachedMethodMonitor
    _excludedFromSavingToFile(false),
-   _numCacheBypasses(0), _numCacheHits(0), _numCacheMisses(0), _numGeneratedClasses(0)
+   _numCacheBypasses(0), _numCacheHits(0), _numCacheMisses(0), _numGeneratedClasses(0), _numUnusedMethods(0)
    {
    bool allMonitors = _classLoaderMonitor && _classMonitor && _methodMonitor &&
                       _classChainMonitor && _wellKnownClassesMonitor &&
@@ -1096,6 +1095,7 @@ JITServerAOTCache::storeMethod(const AOTCacheClassChainRecord *definingClassChai
          aotHeaderRecord->data().id(), records.size(), (unsigned long long)clientUID
       );
 
+   ++_numUnusedMethods;
    return true;
    }
 
@@ -1114,6 +1114,9 @@ JITServerAOTCache::findMethod(const AOTCacheClassChainRecord *definingClassChain
       }
 
    ++_numCacheHits;
+   if (!it->second->getNumLookups())
+      --_numUnusedMethods;
+   it->second->incNumLookups();
    return it->second;
    }
 
@@ -1181,7 +1184,8 @@ JITServerAOTCache::printStats(FILE *f) const
       "\tAOT header records: %zu\n"
       "\tcache bypasses: %zu\n"
       "\tcache hits: %zu\n"
-      "\tcache misses: %zu\n",
+      "\tcache misses: %zu\n"
+      "\tunused methods: %zu\n",
       _name.c_str(),
       _cachedMethodMap.size(),
       _classLoaderMap.size(),
@@ -1192,7 +1196,8 @@ JITServerAOTCache::printStats(FILE *f) const
       _aotHeaderMap.size(),
       _numCacheBypasses,
       _numCacheHits,
-      _numCacheMisses
+      _numCacheMisses,
+      _numUnusedMethods
    );
    }
 
