@@ -1665,6 +1665,14 @@ JITServerAOTCache::isAOTCacheBetterThanSnapshot(const std::string &cacheFileName
    }
 
 
+size_t
+JITServerAOTCacheMap::cacheMemoryUsage()
+   {
+   // The AOT cache allocations are used as a stand-in for the total memory used by all AOT caches.
+   // This underestimates the true value (mostly due to persistent allocator overhead), but should be correlated with it.
+   return TR::Compiler->persistentGlobalMemory()->_totalPersistentAllocations[TR_Memory::JITServerAOTCache];
+   }
+
 bool
 JITServerAOTCacheMap::cacheHasSpace()
    {
@@ -1673,10 +1681,7 @@ JITServerAOTCacheMap::cacheHasSpace()
       return false;
       }
 
-   // The AOT cache allocations are used as a stand-in for the total memory used by all AOT caches.
-   // This underestimates the true value, but should be correlated with it.
-   size_t aotTotalRecordAllocations = TR::Compiler->persistentGlobalMemory()->_totalPersistentAllocations[TR_Memory::JITServerAOTCache];
-   if (aotTotalRecordAllocations >= _cacheMaxBytes)
+   if (cacheMemoryUsage() >= _cacheMaxBytes)
       {
       _cacheIsFull = true;
       if (TR::Options::getVerboseOption(TR_VerboseJITServer))
@@ -2032,4 +2037,6 @@ JITServerAOTCacheMap::printStats(FILE *f) const
    OMR::CriticalSection cs(_monitor);
    for (auto &it : _map)
       it.second->printStats(f);
+
+   fprintf(f, "Total AOT cache memory usage: %zu bytes\n", cacheMemoryUsage());
    }

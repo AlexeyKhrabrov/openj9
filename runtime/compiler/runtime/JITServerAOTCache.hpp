@@ -696,6 +696,7 @@ public:
    JITServerAOTCache *get(const std::string &name, uint64_t clientUID, bool &pending);
 
    static void setCacheMaxBytes(size_t bytes) { _cacheMaxBytes = bytes; }
+   static size_t cacheMemoryUsage();
    static bool cacheHasSpace();
 
    void printStats(FILE *f) const;
