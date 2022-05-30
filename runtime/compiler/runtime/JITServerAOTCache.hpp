@@ -208,6 +208,9 @@ public:
    CachedAOTMethod(const CachedAOTMethod &) = delete;
    void operator=(const CachedAOTMethod &) = delete;
 
+   size_t getNumLookups() const { return _numLookups; }
+   void incNumLookups() { ++_numLookups; }
+
    const AOTCacheClassChainRecord *definingClassChainRecord() const { return _definingClassChainRecord; }
    const AOTCacheClassRecord *definingClassRecord() const { return _definingClassChainRecord->records()[0]; }
    const SerializedAOTMethod &data() const { return _data; }
@@ -230,6 +233,8 @@ private:
       return offsetof(CachedAOTMethod, _data) + SerializedAOTMethod::size(numRecords, codeSize, dataSize) +
              numRecords * sizeof(AOTCacheRecord *);
       }
+
+   size_t _numLookups;
 
    const AOTCacheClassChainRecord *const _definingClassChainRecord;
    SerializedAOTMethod _data;
@@ -385,6 +390,7 @@ private:
    size_t _numCacheBypasses;
    size_t _numCacheHits;
    size_t _numCacheMisses;
+   size_t _numUnusedMethods;
    };
 
 
