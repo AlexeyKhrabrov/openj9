@@ -765,4 +765,9 @@ JITServerAOTCacheMap::printStats(FILE *f) const
    OMR::CriticalSection cs(_monitor);
    for (auto &it : _map)
       it.second->printStats(f);
+
+   fprintf(f,
+      "Total AOT cache memory usage: %zu bytes\n",
+      TR::Compiler->persistentGlobalMemory()->_totalPersistentAllocations[TR_Memory::JITServerAOTCache]
+   );
    }
