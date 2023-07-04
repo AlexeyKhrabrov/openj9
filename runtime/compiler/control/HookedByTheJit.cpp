@@ -475,7 +475,8 @@ static void jitHookInitializeSendTarget(J9HookInterface * * hook, UDATA eventNum
                      TR::Options::getHighCodeCacheOccupancyBCount() :
                      TR::Options::getHighCodeCacheOccupancyCount();
          }
-      else if (sccCounts)
+      else if (sccCounts && !(TR::Options::getAOTCmdLineOptions()->getOption(TR_NoLoadAOT) &&
+                              TR::Options::getAOTCmdLineOptions()->getOption(TR_NoStoreAOT)))
          {
          // The default FE may not have TR_J9SharedCache object because the FE may have
          // been created before options were processed.
